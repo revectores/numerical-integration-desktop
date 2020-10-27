@@ -1,0 +1,10 @@
+.DS_Store
+CMake*
+cmake*
+Makefile
+
+intergal
+*.out
+*.o
+.qmake*
+*.app
