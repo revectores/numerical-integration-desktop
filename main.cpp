@@ -7,7 +7,7 @@ int main(int argc, char *argv[]){
 
 	Dashboard window;
 
-	window.resize(1080, 550);
+	window.resize(640, 480);
 	window.setWindowTitle("Numerical Integration");
 	window.show();
 

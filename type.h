@@ -10,14 +10,13 @@ typedef struct _interval {
 	double right;
 } interval;
 
-typedef struct _step_sum {
-	double step;
+typedef struct _sum_step {
 	double sum;
-} step_sum;
+	double step;
+} sum_step;
 
 typedef double (* func)(double x);
 typedef double (* integral_method)(func f, interval intv, int div_count);
-
 
 typedef std::vector<point> vpoint;
 

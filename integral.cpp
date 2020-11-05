@@ -5,7 +5,7 @@
 double square(double x){
 	return x * x;
 }
-
+	
 double ln(double x){
 	return log(x);
 }
@@ -15,7 +15,7 @@ double sqrt_sin(double x){
 }
 
 double sin_over_x(double x){
-	return sin(x) / x;
+	return x ? sin(x) / x : 1;
 }
 
 double exp_over_square_sum(double x){
@@ -25,7 +25,6 @@ double exp_over_square_sum(double x){
 double ln_over_square_sum(double x){
 	return ln(1 + x) / (1 + x * x);
 }
-
 
 double composite_trapezoid_by_points(vpoint points){
 	if ((points.size() < 2) || (!equal_step(points))) {
@@ -66,13 +65,13 @@ double composite_Simpson_by_points(vpoint points){
 }
 
 
-double composite_trapezoid(func f, interval intv, int div_count){
+double composite_trapezoid(func f, interval intv, int n){
 	vpoint points;
 
 	double x = intv.left;
-	double step = (intv.right - intv.left) / div_count;
+	double step = (intv.right - intv.left) / n;
 
-	for (int i = 0; i <= div_count; i++){
+	for (int i = 0; i <= n; i++){
 		points.push_back({x, f(x)});
 		x += step;
 	}
@@ -82,13 +81,13 @@ double composite_trapezoid(func f, interval intv, int div_count){
 }
 
 
-double composite_Simpson(func f, interval intv, int div_count){
+double composite_Simpson(func f, interval intv, int n){
 	vpoint points;
 
 	double x = intv.left;
-	double step = (intv.right - intv.left) / div_count;
+	double step = (intv.right - intv.left) / n;
 
-	for (int i = 0; i <= div_count; i++){
+	for (int i = 0; i <= n; i++){
 		points.push_back({x, f(x)});
 		x += step;
 	}
@@ -98,9 +97,32 @@ double composite_Simpson(func f, interval intv, int div_count){
 }
 
 
-double auto_step_integral(integral_method method, func f, interval intv, double precision) {
+double Romberg(func f, interval intv, int n){
+	std::vector<std::vector<double>> R;
+
+	int k = -1;
+
+	while(pow(2, k) <= n){
+		fflush(NULL);
+		k++;
+		int div_count = pow(2, k);
+		R.push_back({composite_trapezoid(f, intv, div_count)});
+		if (k == 0) {
+			continue;
+		}
+		for (int i = 0; i <= k; i++){
+			R.back().push_back(R[k][i] + (R[k][i] - R[k-1][i])/(pow(4, i+1)-1));
+		}
+		printf("R[%d][%d]=%f, R[%d][%d]=%f\n", k, k, R[k][k], k-1, k-1, R[k-1][k-1]);
+	}
+
+	return R[k][k];
+}
+
+
+sum_step auto_step_integral(integral_method method, func f, interval intv, double precision) {
 	if (precision == 0){
-		return -1;
+		return {-1, -1};
 	}
 
 	int div_count = 1;
@@ -111,16 +133,15 @@ double auto_step_integral(integral_method method, func f, interval intv, double 
 		double nsum = method(f, intv, div_count);
 		if (fabs(sum - nsum) < precision){
 			sum = nsum;
-			// double best_step = (intv.right - intv.left) / div_count;
-			// return {best_step, sum};
-			return sum;
+			double best_step = (intv.right - intv.left) / div_count;
+			return {sum, best_step};
 		}
 		sum = nsum;
 	}
 }
 
 
-
+/*
 double Romberg(func f, interval intv, double precision){
 	if (precision == 0) {
 		return -1;
@@ -138,7 +159,7 @@ double Romberg(func f, interval intv, double precision){
 		if (k == 0) {
 			continue;
 		}
-		for (int i = 0; i < k; i++){
+		for (int i = 0; i <= k; i++){
 			R.back().push_back(R[k][i] + (R[k][i] - R[k-1][i])/(pow(4, i+1)-1));
 		}
 		printf("R[%d][%d]=%f, R[%d][%d]=%f\n", k, k, R[k][k], k-1, k-1, R[k-1][k-1]);
@@ -147,6 +168,7 @@ double Romberg(func f, interval intv, double precision){
 		}
 	}
 }
+*/
 
 
 /*
